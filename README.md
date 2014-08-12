@@ -2,8 +2,6 @@
 
 
 ```
-#!python
-
 [+] Author: Evi1m0 <evi1m0.bat@gmail.com>
 [+] Team: FF0000 TEAM <http://www.ff0000.cc>
 [+] From: HackerSoul <http://www.hackersoul.com>

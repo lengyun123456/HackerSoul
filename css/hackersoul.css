@@ -1,0 +1,78 @@
+   .header {
+      width: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 223px;
+      overflow: hidden;
+    }
+    .header img {
+      width: 100%;
+    }
+    .narrow-board {
+      width: 700px;
+      margin: 0 auto;
+      position: relative;
+    }
+    .logo-container {
+      position: relative;
+      display: block;
+    }
+    .logo {
+      width: 700px;
+      margin: 0 auto;
+    }
+    img.logo{
+      width: 100%;
+      margin: 0 auto;
+    }
+    .slogan {
+      right: 80px;
+      bottom: 20px;
+      font-size: 20px;
+      font-weight: bold;
+      position: absolute;
+      color: #333;
+    }
+    .desc {
+      padding: 40px 30px 0;
+    }
+    .post {
+      font-size: 16px;
+      font-weight: bold;
+      padding: 40px 20px;
+    }
+    .post pre {
+      background-color: #fff;
+    }
+	.post xmp {
+      font-weight: normal;
+      white-space: pre-wrap;
+	}
+    .post table {
+      width: 100%;
+      color: #333;
+    }
+    .post table td {
+      padding: 5px 10px;
+    }
+    .footer { 
+      font-size: 18px;
+      font-weight: bold;
+      text-align: center;
+      color: #f60000;
+   	  margin-bottom: 20px;
+    }
+    .copy {
+      font-size: 18px;
+    }
+    .red-link {
+      color: #f60000;
+      text-decoration: underline;
+    }
+    .red-link:hover,
+    .red-link:focus,
+    .red-link:link,
+    .red-link:active {
+      color: #d60000;
+    }

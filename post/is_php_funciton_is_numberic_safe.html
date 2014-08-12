@@ -1,0 +1,70 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Is php function is_numberic() safe? - Hackersoul.com</title>
+  <meta name="keywords" content="HackerSoul,FF0000TEAM,PHP特性分析">
+  <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="/css/hackersoul.css">
+  <link rel="shortcut icon" href="favicon.ico" type=image/x-icon>
+</head>
+
+<body>
+  <div class="header">
+    <img src="/img/hs_header.jpg" class="header-bg">
+  </div>
+  <div class="narrow-board">
+    <a class="logo-container" href="/">
+      <img src="/img/hs_logo.png" class="logo">
+      <div class="slogan">Enjoy hacking, Enjoy life.</div>
+    </a>
+
+    <div class="post">
+      <pre>
+      <xmp>                           
+                    .::Is php function is_numberic() safe?::.
+
+                    We enjoy hacking of life in day and night.
+
+                _______________________________________________
+				
+                  [+] Author: Lee <Lee#ff0000.cc>
+                  [+] Team: FF0000 TEAM <http://www.ff0000.cc>
+                  [+] From: HackerSoul <http://www.hackersoul.com>
+                  [+] Create: 2014-01-22
+                _______________________________________________
+
+
+                                  -= Main =-
+
+国内一部分CMS程序里面有用到过is_numberic函数，我们先看看这个函数的结构： 
+bool is_numeric ( mixed $var )
+
+is_numeric — 检测变量是否为数字或数字字符串，如果 var 是数字和数字字符串则返回 TRUE，否则返回 FALSE。
+
+接下来我们来看个例子，说明这个函数是否安全？
+$s = is_numeric($_GET['s'])?$_GET['s']:0;
+$sql="insert into test(type)values($s);";  //是 values($s) 不是values('$s')
+mysql_query($sql);
+
+上面这个片段程序是判断参数s是否为数字，是则返回数字，不是则返回0，然后带入数据库查询。（这样就构造不了sql语句）
+
+我们把‘1 or 1’ 转换为16进制 0x31206f722031 为s参数的值，程序运行后，我们查询数据库看看，如下图：
+</xmp>
+<img src="/img/media/69281397536445.png" />
+<xmp>
+如果再重新查询这个表的字段出来，不做过滤带入另一个SQL语句，将会造成2次注入.
+
+So，尽量不要使用这函数。如果必须使用这个函数，建议使用规范的sql语句，条件加入单引号，这样16进制0x31206f722031就会在数据库里显示出来，而不会出现1 or 1 :)
+
+                                  -= END =-
+      </xmp>
+      </pre>
+    </div>
+
+    <div class="footer">
+	<span class="copy">&copy;&nbsp;</span>2014 FF0000 TeAm. <a href="/about.html" class="red-link">About Us</a>
+    </div>
+  </div>
+</body>
+</html>

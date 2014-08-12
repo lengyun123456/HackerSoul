@@ -1,0 +1,168 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Custom Pwd - FF0000 TeAm</title>
+  <meta name="keywords" content="HackerSoul,FF0000TEAM,fuzz密码生成工具,特定密码生成器">
+  <meta name="description" content="根据规则生成特定的密码字典，便捷Fuzz过程，当然你也可以给我发送邮件添加新的规则：evi1m0.bat[at]gmail.com">
+  <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="/css/hackersoul.css">
+  <link rel="shortcut icon" href="favicon.ico" type=image/x-icon>
+  <style>
+      .introduce {
+          padding: 15px;
+          margin-top: 10px;
+          border-radius: 3px;
+      }
+      .bs-callout {
+          padding: 15px;
+          margin-top: 10px;
+          border: 1px solid #DDDDDD;
+          border-left-width: 5px;
+          border-radius: 3px;
+      }
+      .bs-callout-danger {
+          border-left-color: #d9534f;
+      }
+      .left-main {
+          height: 360px;
+          overflow-x: hidden;
+          overflow-y: auto;
+          margin-top: 10px;
+      }
+      .left-list {
+          padding: 15px;
+          border: 1px solid #eee;
+          border-radius: 3px;
+      }
+      .input-main {
+          margin-top: 20px;
+      }
+  </style>
+</head>
+
+<body>
+  <div class="header">
+    <img src="/img/hs_header.jpg" class="header-bg">
+  </div>
+  <div class="narrow-board">
+    <a class="logo-container" href="/" title="一个有情怀的黑客博客">
+      <img src="/img/hs_logo.png" class="logo">
+      <div class="slogan">Enjoy hacking, Enjoy life.</div>
+    </a>
+  <div class="container" style="width: 100%; margin-top: 10px;">
+  <div class="row">
+    <div class="col-md-4">
+      <div class="bs-callout-danger bs-callout">
+          Dictionary Regular
+      </div>
+      <div class="left-main">
+          <ul class="list-unstyled left-list">
+			<li>%username%</li>
+			<li>%username%1</li>
+			<li>%username%12</li>
+			<li>%username%123</li>
+			<li>%username%1234</li>
+			<li>%username%12345</li>
+			<li>%username%123456</li>
+			<li>%username%@123</li>
+			<li>%username%@123.com</li>
+			<li>%username%@163</li>
+			<li>%username%@163.com</li>
+			<li>%username%163</li>
+			<li>%username%8</li>
+			<li>%username%88</li>
+			<li>%username%888</li>
+			<li>%username%999</li>
+			<li>%username%666</li>
+			<li>%username%2008</li>
+			<li>%username%2009</li>
+			<li>%username%2010</li>
+			<li>%username%2011</li>
+			<li>%username%2012</li>
+			<li>%username%2013</li>
+            <li>%username%2014</li>
+			<li>%username%@2008</li>
+			<li>%username%@2009</li>
+			<li>%username%@2010</li>
+			<li>%username%@2011</li>
+			<li>%username%@2012</li>
+			<li>%username%@2013</li>
+            <li>%username%@2014</li>
+			<li>%username%!@#</li>
+            <li>%username%.</li>
+            <li>%username%..</li>
+            <li>%username%...</li>
+            <li>%username%1qa</li>
+            <li>%username%2ws</li>
+            <li>%username%3ed</li>
+            <li>%username%test</li>
+            <li>%username%#test#</li>
+            <li>testtest</li>
+            <li>testtest.</li>
+            <li>testtest..</li>
+            <li>testtest...</li>
+          </ul>
+      </div>
+    </div>
+    <div class="col-md-8">
+        <div class="panel panel-default introduce">
+            根据规则生成特定的密码字典，便捷Fuzz过程，当然你也可以给我发送邮件添加新的规则：<code>evi1m0.bat[at]gmail.com</code>
+        </div>
+        <div class="input-main">
+          <form class="form-inline" role="form">
+              <div class="form-group">
+                      <input type="text" id="keyword" name="keyword" class="form-control keyword" style="width: 370px">
+              </div>
+              <button type="button" class="btn btn-danger make" data-toggle="modal" data-target="#content">Make</button>
+          </form>
+        </div>
+    </div>
+
+    <div class="modal fade" id="content" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header" style="background-color: #B80000; color: #fff;">
+            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            <h4 class="modal-title" id="myModalLabel">Custom Dictionary - FF0000TeAm</h4>
+          </div>
+          <div class="modal-body dictionary">
+            未输入关键字，生成失败 :(
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+  <div class="footer" style="margin-top:15px;">
+      <span class="copy">&copy;&nbsp;</span>2014 FF0000 TeAm. <a href="/about.html" class="red-link">About Us</a>
+    </div>
+  </div>
+<script src="/css/jquery.min.js"></script>
+<script src="/css/bootstrap.min.js"></script>
+<script>
+$('.make').click(function(){
+  $.get("./custom-regular.txt", function(result){
+    var data;
+    var keyword = $('.keyword').val();
+    if(keyword.length == 0){
+        }
+    else{
+        var arr = result.split('\n');
+        for(var i=0; i<arr.length; i++){
+          var s = arr[i];
+          if (s.indexOf("%") != -1 && s.lastIndexOf("%") != -1) {
+            s = s.replace(s.substr(s.indexOf("%"),s.lastIndexOf("%")+1),keyword);
+          }
+          data += s + '<br />';
+        }
+        if(data.indexOf("undefined") == 0){
+          data = data.substr(9,data.length);
+        }
+        $('.dictionary').html(data);
+      }
+  });
+});
+</script>
+</body>
+</html>

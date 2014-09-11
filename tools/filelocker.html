@@ -21,13 +21,13 @@
 
     <div class="post">
       <pre>
-      <xmp>                           
+      <xmp>
                     .::FileLocker DES加密解密工具::.
 
                     We enjoy hacking of life in day and night.
 
                 _______________________________________________
-        
+
                   [+] Author: Windows2000
                   [+] Team: FF0000 TEAM <http://www.ff0000.cc>
                   [+] From: HackerSoul <http://www.hackersoul.com>
@@ -147,13 +147,11 @@ class FileLocker(object):
         fo = open(self.out_file_path, mode='wb')
         fsize = os.path.getsize(self.in_file_path)
         fo.write(self.cipher.encrypt(struct.pack('Q', fsize)))
-        for i in xrange(fsize / self.block_size):
-            block = fi.read(self.block_size)
-            fo.write(self.cipher.encrypt(block))
         extra_size = fsize % self.block_size
+        fo.write(self.cipher.encrypt(fi.read(fsize - extra_size)))
         if extra_size:
-            block = fi.read(self.block_size) + ' ' * (self.block_size - extra_size)
-            fo.write(self.cipher.encrypt(block))
+            last_block = fi.read(self.block_size) + ' ' * (self.block_size - extra_size)
+            fo.write(self.cipher.encrypt(last_block))
         fi.close()
         fo.close()
         if self.options.clean_original:
@@ -166,9 +164,7 @@ class FileLocker(object):
             fi.read(struct.calcsize('Q'))))[0]
         cur_fsize = os.path.getsize(self.in_file_path) - struct.calcsize('Q')
         last_block_size = self.block_size - (cur_fsize - origin_fsize)
-        for i in xrange((cur_fsize / self.block_size) - 1):
-            block = fi.read(self.block_size)
-            fo.write(self.cipher.decrypt(block))
+        fo.write(self.cipher.decrypt(fi.read(cur_fsize - self.block_size)))
         fo.write(self.cipher.decrypt(fi.read(self.block_size))[:last_block_size])
         fi.close()
         fo.close()

